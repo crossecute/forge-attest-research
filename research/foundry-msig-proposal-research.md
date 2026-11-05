@@ -12,7 +12,7 @@ How much of each file I read:
 - Dependency information comes from each repo's `.gitmodules`, `foundry.toml`, `remappings.txt`, and `soldeer.lock` where they exist. For Union and Pareto I did not find where `safe-utils` comes from.
 - For the comparison I also read the tools that consume script output: the Zeus CLI ([Layr-Labs/zeus](https://github.com/Layr-Labs/zeus), commit `8c9569d`), Base's [eip712sign](https://github.com/base/eip712sign) (commit `15e556f`, all 371 lines of `main.go`), and Base's [task-signing-tool](https://github.com/base/task-signing-tool) (commit `e18a2b0`, README plus the validation, simulation, and signing code paths). I did not read CI around these scripts or the Safe Transaction Service.
 
-Limits: GitHub code search is incomplete. Large orgs I checked (Morpho, Uniswap, Aave/BGD, Lido, Pendle, Compound, Hyperlane, Across, Liquity, Sablier, Ethena, Scroll, Mantle, LayerZero) returned no Safe-proposal scripts in the index. That is not evidence they do not use Foundry for this.
+Limits: GitHub code search is incomplete. Large orgs I checked with it (Morpho, Uniswap, Aave/BGD, Lido, Pendle, Compound, Hyperlane, Across, Liquity, Sablier, Ethena, Scroll, Mantle, LayerZero) returned no Safe-proposal scripts in the index. A later scan of their public repos found Safe tooling in 8 of the 14, mostly in TypeScript, Python, or Go; see "Large-org follow-up".
 
 ## Style key
 
@@ -198,8 +198,92 @@ These are the shared tools other teams build on: [Base `MultisigScript`](https:/
 
 Mirrors and forks with no independent usage (for example `anxolin/evk-periphery`, `VULCAN2019/lagoon-v0`, `Secure3Audit/code_Mantle_V2_Public`, audit-contest copies) and repos where "Safe" matched ERC-1155 `safeBatchTransferFrom` were left out.
 
+## Large-org follow-up
+
+Research date: 2026-11-05. The "Method and limits" section above lists 14 large orgs with no Safe-proposal scripts in the GitHub code-search index. This section reports what a scan of their public repos found. The rows here are not in the style tables and have no executed-Safe-transaction check.
+
+### Result
+
+The Limits paragraph above should not be read as "these orgs have nothing". Scanning the public repos in their GitHub orgs found Safe tooling in 8 of the 14. Most of it is not Foundry: it is TypeScript, Python, or Go, and one Foundry script calls TypeScript through FFI. Besides the Aave v4 stewards repo already in the S4 table, only two repos are Foundry-first Safe tools (Morpho `safer`, Lido `clutch`), and `safer` is archived. Of the 8, only Hyperlane, Morpho, Aave, Lido, and LayerZero have code that proposes or executes Safe transactions; Across and Compound only deploy or clone Safes, and Mantle's Go client is a direct-execution client.
+
+The other 6 orgs have no Safe code in public repos. Uniswap and Scroll do have Foundry scripts for governance proposals or ownership setup, which is a different mechanism (Governor or timelock roles, not a multisig proposal). Aave and Compound also have governance scripts.
+
+### Method and limits for the large-org scan
+
+1. Listed every public repo of each org and of the sibling orgs below. 971 non-fork repos, archived ones included. Forks of other projects were skipped.
+2. Read the full file tree of 966 of them (5 trees could not be fetched).
+3. Downloaded 5,294 candidate files (excluding test directories and vendored libraries): every `*.s.sol`, every source file under a `script`, `scripts`, `task`, `tasks`, `ops`, `operations`, or `multisig` directory, and every file whose path contains safe, gnosis, multisig, msig, or multisend. Searched them for `execTransaction`, `getTransactionHash`, `MultiSend`, `@safe-global`, `protocol-kit`, `api-kit`, `safe-core-sdk`, `forge-safe`, `safe-utils`, `ISafe`, `GnosisSafe`, `safe.global`, and Transaction Builder terms. That gave 110 matching files; the real hits are below and the rest were false positives (Gnosis Chain adapters, generated Go bindings, wallet-connector code, OpenZeppelin `Safe*` libraries, Substrate `pallet_multisig`, Hyperlane validator-multisig ISMs).
+4. Separately searched the same files for governance and timelock proposal code (`propose(`, `scheduleBatch`, `GovernorBravo`, and similar).
+5. GitHub code search is limited to 10 requests a minute. I used it only as a cross-check and it ran out partway, so the file scan in step 3 is the main evidence. The two org-wide counts it returned (Across 3 for `protocol-kit`; mantle-xyz 6 for `execTransaction`) agree with the file scan.
+
+Not covered: private repos, code outside the default branch, TypeScript or Python files in `src/` directories that did not match a path rule (I fetched `src/` for LayerZero `devtools` only), and the step the style tables use of matching each project's Safe to an executed Safe transaction. Rows below are not verified against on-chain transactions. Long files (Hyperlane `safe.ts`, Mantle `client.go`, the Lido vote scripts) were read in the parts that touch signing, proposing, or execution, not line by line.
+
+Orgs scanned, with sibling orgs found by name probe and org description:
+
+| Org | GitHub orgs scanned | Not scanned |
+|---|---|---|
+| Morpho | `morpho-org` | `morpho-labs` (marked deprecated, 0 public repos) |
+| Uniswap | `Uniswap`, `uniswapfoundation` | |
+| Aave | `aave` (Aave Labs), `aave-dao`, `bgd-labs` | `avaraxyz` (1 repo) |
+| Lido | `lidofinance` | |
+| Pendle | `pendle-finance` | |
+| Compound | `compound-finance`, `compound-developers` | |
+| Hyperlane | `hyperlane-xyz` | |
+| Across | `across-protocol` | `UMAprotocol` (related project, 73 repos) |
+| Liquity | `liquity` | |
+| Sablier | `sablier-labs` | `sablier-xyz` (4 repos, described as a research lab) |
+| Ethena | `ethena-labs` | |
+| Scroll | `scroll-tech` | |
+| Mantle | `mantlenetworkio`, `mantle-xyz` | `Mantle-Network` (1 repo, different site) |
+| LayerZero | `LayerZero-Labs` | |
+
+### Findings
+
+Style codes are from the style key above (S1 offline sign and run, S2 prank and emit, S3 forge-safe, S4 safe-utils, S5 custom client, S6 output only, S7 direct execution). "Last push" is the repo's GitHub `pushed_at`.
+
+| Org | Repo and files | Language | Style | What it does | Status |
+|---|---|---|---|---|---|
+| Hyperlane | [hyperlane-monorepo](https://github.com/hyperlane-xyz/hyperlane-monorepo): `typescript/infra/scripts/safes/`, `typescript/infra/src/utils/safe.ts`, `src/govern/multisend.ts`, `HyperlaneAppGovernor.ts`, `typescript/sdk/.../submitter/ethersV5/` | TypeScript | S5 (own client on Safe protocol-kit and api-kit) | A checker finds config drift, a governor sorts the fix calls by submission type (signer, Safe, ICA, manual), and `SafeMultiSend` proposes them to the Safe Transaction Service. Signs EIP-712 `SafeTx` typed data with a deployer key fetched from the secret store. The code has delegate-aware checks, so that key can propose as a Safe delegate without being an owner. Nonce comes from the service's next-nonce, so new proposals queue behind pending ones, with a manual override table. Also: propose from combined tx files, parse and combine txs, delete pending txs, update owners and threshold, execute a queued tx, and a Transaction Builder JSON output class. The SDK has Safe, Safe Tx Builder, timelock, and ICA submitters. | Active (2026-11-05). `hyperlane-monorepo-zksync` is a stale copy (2024-11-22). |
+| Morpho | [safer](https://github.com/morpho-org/safer): `script/SafeTxDataBuilder.sol`, `HashData.s.sol`, `ExecTransaction.s.sol`, `Makefile` | Solidity (Foundry) | S1 style, no Safe API | `make tx` builds a Safe tx JSON, `HashData` reads `getTransactionHash` from the Safe, `make sign:ledger` runs `cast wallet sign` on that hash and appends the signature to a file, `ExecTransaction` sorts signatures by signer, requires the threshold, and broadcasts `execTransaction`. Built as a fallback for when the Safe app is down. Signatures use the eth_sign type (`v + 4`), so a Ledger signs a 32-byte hash and shows no transaction fields. | Archived, last push 2026-09-01, README says no longer maintained. |
+| Morpho | [create-safe-tx](https://github.com/morpho-org/create-safe-tx) (feeds `safer`), `@morpho-labs/gnosis-tx-builder` (npm package imported by the SDK below) | TypeScript | S6 | Builds Safe Transaction Builder JSON with MultiSend and Zodiac modifier calls. I did not find a repo for `gnosis-tx-builder`. | `create-safe-tx` archived 2026-04-16. |
+| Morpho | [morpho-aavev3-optimizer-sdk](https://github.com/morpho-org/morpho-aavev3-optimizer-sdk): `src/txHandler/batch/Safe.TxHandler.ts` | TypeScript | S6 | End-user batch builder that emits Safe Transaction Builder JSON for the Morpho-Aave V3 bulker. Not a Morpho operations flow. | Archived 2025-01-08. |
+| Aave | [aave-dao/aave-v4-risk-stewards](https://github.com/aave-dao/aave-v4-risk-stewards): `scripts/RiskStewardsBase.s.sol` | Solidity | S4 | Already in the S4 table as "Aave Labs (v4 risk stewards)". The repo is in the `aave-dao` org. | Active (2026-10-14). |
+| Aave | [aave-dao/aave-risk-stewards](https://github.com/aave-dao/aave-risk-stewards): `scripts/CapsPlusRiskStewardBase.s.sol`, `scripts/safe-helper.ts` | Solidity plus TypeScript | Foundry script calls TypeScript through `vm.ffi` | The Foundry script simulates the steward call with a config snapshot diff, then runs `npx ts-node scripts/safe-helper.ts <safe> <to> <calldata> <chainId> Call` through FFI. The helper uses the older Safe core SDK, signs the Safe tx hash with a Ledger or private key, and posts to the Transaction Service for six chains. Same shape as S3, with the signing done outside Solidity. | Archived 2024-06-04. |
+| Aave | `aave-dao/aave-stewards`, `bgd-labs/aave-stewards`, `aave-dao/aave-permissions-book` | Solidity, TypeScript | None | Safe addresses appear as constants (finance steward Safe) and as an ABI for permission reports. No proposing code. | |
+| Lido | [lido-vesting-escrow](https://github.com/lidofinance/lido-vesting-escrow): `scripts/multisig_tx.py` | Python (Brownie plus ape-safe) | S4 style | `build` reads a CSV, simulates the vesting deployments from the Safe address on a mainnet fork, turns the recorded calls into one MultiSend with `multisend_from_receipts`, warns if the nonce differs from the pending nonce, signs through a local Frame RPC or manually from the EIP-712 payload, and posts to the Transaction Service. `check <safeTxHash> <csv>` re-fetches a queued tx and compares it with the CSV. | Active (2026-10-07). |
+| Lido | [clutch](https://github.com/lidofinance/clutch): `src/exec/SafeExec.sol`, `script/ApplyPolicy.s.sol`, `DeployDryRun.s.sol`, `Teardown.s.sol` | Solidity (Foundry) | S7 | Dry run of a treasury policy where Aragon Voting owns a Safe. `SafeExec.execAsOwner` has the voting contract call `approveHash` on the Safe tx hash, then anyone calls `execTransaction` with the approved-hash signature (`v = 1`). The Safe/Roles/Voting setup uses a mock voting contract. Also builds Aragon CallsScript payloads for Easy Track. | Active (2026-10-25). |
+| Lido | [scripts](https://github.com/lidofinance/scripts) | Python (Brownie) | Not Safe | Builds Aragon vote items and Dual Governance proposals (`create_vote`, `agent_forward`, `submit_proposals`). DAO votes, not multisig transactions. Safes show up only in vote descriptions. | Active (2026-11-04). |
+| Lido | `lido-cli` (`contracts/gnosis.ts`), `docs` (`scripts/fetch-msig-quorums.js`), `alerting-forta` (`multisig-watcher`) | TypeScript | None | Safe ABIs and proxy factory for a CLI, a script that rewrites documented multisig quorums from on-chain thresholds, and Forta monitoring of Safe changes. | `alerting-forta` archived 2025-07-07. |
+| Across | [contracts](https://github.com/across-protocol/contracts): `script/safe-multisig/deploySafe.ts` | TypeScript | None (deploy only) | Deterministic Safe deployment from a committed `config.json` (owners, threshold, salt), using Safe protocol-kit and canonical Safe v1.4.1 addresses for chains the registry does not know. Signs with `MNEMONIC`. Writes a Foundry-style broadcast artifact. It does not propose Safe transactions. | Active (2026-11-04). |
+| Across | same repo: `scripts/svm/squadsIdlUpgrade.ts`, `remoteHubPoolPauseDeposits.ts` | TypeScript | S6 (Solana) | Prints a Base58 transaction to import in the Squads builder for an Anchor IDL upgrade. The pause script sends an Ethereum HubPool call that is relayed to the Solana SpokePool. | |
+| Compound | [comet](https://github.com/compound-finance/comet): `scripts/clone-multisig.ts` | TypeScript | None | Copies the pause guardian Safe's owners and threshold onto a fork or test network with `SafeFactory`. | Last push 2026-06-23. |
+| Compound | `comet/forge/script/marketupdates/` | Solidity (Foundry) | Not Safe | Deploys the market-update contracts and runs the Governor Bravo proposal lifecycle on a fork with cheatcodes. The market admin (a multisig address) is set on `MarketUpdateProposer` and pranked in simulation. No code proposes to a Safe. I did not read `GovernanceHelper.sol` beyond the function list and the propose, prank, and broadcast calls. | |
+| LayerZero | [devtools](https://github.com/LayerZero-Labs/devtools): `packages/devtools-evm/src/signer/sdk.ts`, `packages/devtools-evm-hardhat/src/transactions/signer.ts`, `tasks/healthcheck/validate-safe-configs.ts` | TypeScript (Hardhat) | S5 | `GnosisOmniSignerEVM` takes the transactions from an OApp config wiring run, builds one call-only batch at the service's next nonce, calls `signTransactionHash`, and proposes it. Enabled per network by a `safeConfig` entry in the Hardhat config. A health-check task calls the service to confirm the configured Safe exists. The Solana examples have an SPL multisig task and mention Squads in their utilities; I did not read those further. | Active (2026-07-21). Older `ua-utils` copy archived. |
+| Mantle | [mantle-v2](https://github.com/mantle-xyz/mantle-v2): `op-service/gnosis/client.go`, `op-chain-ops/cmd/gnosis/main.go`, `op-service/gnosis/contracts/script/DeploySafe.s.sol` | Go, Solidity | S7 | Go Safe client that holds owner private keys, signs the Safe tx hash with all of them, checks the threshold, and sends `execTransaction` through the OP Stack tx manager. `send-tx` CLI. The Foundry script is a local test fixture that deploys a Safe owned by two Anvil accounts. I did not trace who calls the client. | Active (2026-11-04). |
+| Mantle | `mantle-v2/packages/contracts-bedrock/scripts/SetPreinstalls.s.sol` and `op-e2e/bindings/` | Solidity, Go | None | Safe v1.3.0 preinstalls and generated bindings. | |
+
+Governance-proposal tooling (not multisig, listed because it is Foundry transaction generation):
+
+| Org | Repo and files | What it does | Status |
+|---|---|---|---|
+| Uniswap | [protocol-fees](https://github.com/Uniswap/protocol-fees): `script/proposal-1` to `proposal-8`, with `govkit` | Each proposal is a Foundry script that builds the calls with `govkit` types, runs per-chain preflight checks, and writes the proposal as a JSON file for the Governance Seatbelt simulator (`GovernanceSeatbelt.toJson`). Cross-chain parts go through Wormhole. | Active (2026-11-05). |
+| Uniswap | [govkit](https://github.com/Uniswap/govkit): `script/ProposalExample.sol`; `uniswapfoundation/UniStaker`: `script/Propose*.s.sol` | Library and examples for the same flow; the govkit example has an optional path that submits to Governor Bravo. UniStaker scripts call `GovernorBravo.propose` from `PROPOSER_ADDRESS`. | govkit 2026-09-02; UniStaker 2025-05-12 |
+| Aave | [aave-proposals-v3](https://github.com/aave-dao/aave-proposals-v3), [seatbelt-gov-v3](https://github.com/aave-dao/seatbelt-gov-v3) | Per-proposal Foundry scripts that deploy payloads and run `GovV3Helpers.createProposal` through `make deploy-ledger`; Seatbelt simulates the result. The older `bgd-labs/aave-proposals` repo is archived. | Active (2026-11-05) |
+| Scroll | [scroll-contracts](https://github.com/scroll-tech/scroll-contracts): `scripts/foundry/Deploy*ScrollOwner.s.sol`, `Initialize*ScrollOwner.s.sol` | Sets up `ScrollOwner` roles for the Scroll multisig, Security Council, emergency multisig, and 1, 7, and 14 day timelocks, run with a deployer key. No code that builds transactions for those multisigs. | Active (2026-07-08) |
+
+Orgs with no Safe or multisig tooling found in public repos: Pendle (old Hardhat deploy scripts only), Liquity, Sablier (deploy scripts only), Ethena (a mock multisig wallet in a contest repo), and Uniswap Foundation beyond UniStaker.
+
+### Notes that need checking before relying on them
+
+These are observations from reading the code. I did not run anything.
+
+1. `aave-dao/aave-risk-stewards/scripts/safe-helper.ts` sets `nonce: (await safe.getNonce()) + 1`, which is the on-chain nonce plus one. If the current nonce is not already used by a pending transaction, the proposal sits behind a gap. I found no comment explaining it. The file also has `TODO` comments for address and bytes validation on its command-line arguments, which the Foundry script passes in through FFI.
+2. `mantle-v2/op-service/gnosis/client.go` appends signatures in the order of the configured keys. Safe requires signatures sorted by ascending owner address. I searched `op-service/gnosis/*.go` for sorting and found none, so the order of the key list matters. Not tested.
+3. Morpho `safer`, LayerZero `devtools`, and the Aave `safe-helper.ts` all sign the Safe tx hash, not the typed data, so a hardware wallet shows a hash. Hyperlane's infra code signs EIP-712 `SafeTx` typed data (`_signTypedData`). The signing comparison above records the same difference for Base's Ledger and Trezor paths.
+4. Hyperlane's infra proposer key is fetched from a secret store (`getSecretDeployerKey`) and used as an owner or delegate. That is a different trust model from the offline flows described above.
+
 ## Follow-ups worth doing
 
 - Read Safe protocol-kit's nonce logic (it decides Zeus's nonce) and `ottr-cli` (Base's task-origin signatures).
 - Find where Union and Pareto get `safe-utils`, and check whether the S3 copies track upstream fixes.
-- Search for large DAOs (Morpho, Aave, Lido, Uniswap) whose scripts may sit outside the GitHub index.
+- Large orgs were scanned in the follow-up above. Still open: match their Safes to executed transactions as the style tables do, and search private or non-default-branch code, which a public scan cannot see.
