@@ -88,17 +88,15 @@ the permissions change itself is appropriate. [3, 6]
 
 ## Adoption across M0 codebases
 
-The relevant codebases are forked at
-[crossecute/evm-m-extensions](https://github.com/crossecute/evm-m-extensions),
-[crossecute/common](https://github.com/crossecute/common),
-[crossecute/m-portal](https://github.com/crossecute/m-portal) and
-[crossecute/safe-utils](https://github.com/crossecute/safe-utils).
+The demo fork is
+[crossecute/evm-m-extensions](https://github.com/crossecute/evm-m-extensions).
 
 The implemented demo covers the nonce 22 script in `evm-m-extensions`. It retains
 historical dependency gitlinks, including Recon-Fuzz's `safe-utils` revision
-`eccb79f80cad0f3ad98137cf3e859aac5d66e425`. The other forks provide places for
-future integration; this result does not validate their other scripts or the
-current M0 `SafeNonce` and timelock proposal paths. [3, 5, 7]
+`eccb79f80cad0f3ad98137cf3e859aac5d66e425`. These dependencies come from upstream;
+separate `common` and `safe-utils` forks are not required. The demo does not use
+`m-portal` or validate the current M0 `SafeNonce` and timelock proposal paths.
+[3, 5, 7]
 
 For future operations, a suitable next step is a deterministic export before
 signing, with a reviewed claim and passing CI beside the operational explanation.
