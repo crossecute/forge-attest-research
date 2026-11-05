@@ -3,7 +3,7 @@
   "layout": "runs",
   "producer": {
     "repo": "https://github.com/crossecute/evm-m-extensions",
-    "commit": "f712d012dabe705940ba473f754e8e8d32f499db"
+    "commit": "9e194fa9410edaaa467a324a55fa07af0e65f5a8"
   },
   "toolchain": {
     "forge": "1.8.1",
@@ -13,7 +13,7 @@
   },
   "runs": [
     {
-      "script": "attest/ReplayNonce22.s.sol:ReplayNonce22",
+      "script": "script/ProposeTransferSwapFacilityOwner.s.sol:ProposeTransferSwapFacilityOwner",
       "env": {
         "PRIVATE_KEY": "1"
       },
@@ -24,12 +24,13 @@
       "sig": "",
       "senders": [],
       "written": [],
-      "sender_transactions": []
+      "sender_transactions": [],
+      "capture": "safe-utils"
     }
   ],
   "claims": [
     {
-      "output_path": "out/m0-nonce-22.json",
+      "output_path": "captured/nonce22.json",
       "run": 0,
       "attested": true,
       "safe": {

@@ -5,29 +5,34 @@ are public.
 
 | File | Origin and meaning |
 | --- | --- |
-| `attestation.json` | Fresh-clone Forge Attest `998d11c9325990a74c534ef406a968c509d1544a` output using `../attest-nonce22.toml`, `--require-live --json`, and an Ethereum archive RPC. Exit code 0. |
-| `rejected-claim.json` | The same claim with only the canonical and Safe hash expectations replaced by zero hashes. Exit code 1. |
-| `reproduced-safe-tx.json` | The actual `safe-utils` request captured from the unchanged producer's `curl -d` argument. Its SHA-256 matches `expected_output_sha256`. |
-| `canonical-safe-tx.json` | The captured request normalized with `--format safe-service --profile safe-utils --safe 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1 --chain-id 1 --nonce 22`. Its digest matches `expected_canonical_sha256`. |
-| `execution-receipt.json` | Historical RPC receipt for Ethereum transaction `0x0e510ee28b99bd2e99ca5e6e61145181fe71964a3bece9723e3417139b91f785`. Status is `0x1`; the Safe success log contains the expected hash. |
+| `attestation.json` | Fresh-clone Forge Attest `6ba05810e4252c87805af1c518fab6e228ea96f8` output using `../attest-nonce22.toml`, `--require-live --json`, and an Ethereum archive RPC. Exit code 0. |
+| `reproduced-safe-tx.json` | The native `safe-utils` request from the unchanged producer's curl POST. Its SHA-256 matches `expected_output_sha256` and the native capture verdict. |
+| `canonical-safe-tx.json` | The request normalized by the existing `safe-service`/`safe-utils` reader. Its digest matches `expected_canonical_sha256`. |
+| `execution-receipt.json` | Historical receipt for Ethereum transaction `0x0e510ee28b99bd2e99ca5e6e61145181fe71964a3bece9723e3417139b91f785`. Status is `0x1`; the Safe success log contains the expected hash. |
 | `fork-block.json` | Ethereum block 23834855 from RPC, including its block hash. |
-| `ci-run.json` | GitHub metadata for the dedicated unchanged-producer attestation workflow. The inherited M0 integration, gas and coverage workflows are separate. |
+| `ci-run.json` | Successful native-capture M0 run 42100053825. The inherited M0 integration, gas and coverage workflows are separate. |
 
-The claim pins producer `f712d012dabe705940ba473f754e8e8d32f499db`. Its proposal
-script and Foundry configuration are byte-for-byte identical to upstream
-`9e194fa9410edaaa467a324a55fa07af0e65f5a8`. The adapter only selects a local curl
-capture helper and invokes the original script. The helper writes the request
-body unchanged, returns HTTP 201 locally and never calls the real curl binary.
+The claim runs original upstream producer revision
+`9e194fa9410edaaa467a324a55fa07af0e65f5a8` directly. No M0 wrapper, capture helper,
+JSON writer or modified Solidity source is used. The pinned verifier stores the
+captured request outside the producer checkout. Its supported curl interceptor
+returns HTTP 201 locally and never forwards the request.
 
-The public key material used by the producer is test private key `1`. The
-captured request includes its deterministic local signature and sender. It is
-not an owner approval and no proposal is submitted. Those two metadata fields
-are not part of the canonical Safe transaction. The existing reader also checks
-that the producer's `contractTransactionHash` agrees with the independent hash.
+Public test private key `1` satisfies the original script's local signing step.
+The captured request includes its deterministic signature and sender, which are
+metadata outside the canonical Safe transaction. It is not an owner approval.
+The existing reader checks the carried `contractTransactionHash` against the
+independently derived hash. No proposal was submitted.
 
-Local checks cover byte-preserving request capture, rejection of a missing body,
-Solidity formatting/lint, shell syntax, and equality of the original script and
-configuration. Lint reports one advisory note for setting the child process
-`PATH`. The original per-call simulation executes during attestation. The
-reduced demo has no additional full Safe execution test, historical approval
-fixture or custom post-state assertions.
+The [Forge Attest feature CI](https://github.com/crossecute/forge-attest/actions/runs/42099920207)
+passes the Solidity and full shell suites, including 37 native-capture checks.
+Those cover missing, duplicate, unclaimed and unsupported requests, ignored
+transport failures, carried-hash tampering, multiple proposals, RPC/claim chain
+mismatch, invalid manifests, both configuration layouts, and logical output
+names that coincide with source paths. The native M0 run independently verifies
+raw and canonical digests, cast/Solidity hashes and the historical service record.
+
+The original per-call simulation executes during attestation. The demo does not
+add full Safe execution with historical signatures or custom post-state
+assertions. Capture is not a network sandbox; the reviewed bare-curl path is the
+supported transport.

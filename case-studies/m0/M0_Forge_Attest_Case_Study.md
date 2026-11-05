@@ -45,10 +45,11 @@ renunciation and Safe `ExecutionSuccess` for the expected hash. [1, 2]
 | --- | --- |
 | Coverage | One complete transaction containing three ordered calls, Ethereum chain ID 1, Safe version 1.3.0, nonce 22. |
 | Unchanged source | The proposal script and `foundry.toml` are byte-for-byte identical to upstream `9e194fa9410edaaa467a324a55fa07af0e65f5a8`. |
-| Reproducible producer | Demo commit `f712d012dabe705940ba473f754e8e8d32f499db`, Foundry 1.8.1, Solidity 0.8.26 and fork block 23,834,855. |
+| Reproducible producer | Original upstream commit `9e194fa9410edaaa467a324a55fa07af0e65f5a8`, Foundry 1.8.1, Solidity 0.8.26 and fork block 23,834,855. |
 | Native producer path | The original script builds and simulates the calls, signs with a public test key, and constructs its original `safe-utils` proposal request. |
 | Independent verification | Raw and canonical digests are pinned. The `safe-service` reader with `safe-utils` profile checks the request's carried hash. Cast and Solidity independently derive the Safe hash; required service comparison checks the historical record. |
-| Diff | Five added files, 109 lines including configuration and documentation. Only 22 lines are the Solidity adapter and shell capture helper. No existing source or Foundry configuration changes. |
+| Diff | Three added files, 87 lines of claim, workflow and instructions. No added executable code and no existing source or Foundry configuration changes. |
+| CI | The dedicated M0 workflow passes with native capture and required service comparison. [8] |
 
 The signed Safe transaction hash is:
 
@@ -57,10 +58,13 @@ The signed Safe transaction hash is:
 ```
 
 The [demo draft PR](https://github.com/crossecute/evm-m-extensions/pull/1) contains
-one small adapter, one request capture helper, the pinned claim, instructions and
-the dedicated CI workflow. The adapter invokes the original script. The helper
-captures the actual JSON passed to `curl -d` and returns a local HTTP 201 response.
-It never invokes the real curl executable or sends the proposal. [3]
+the pinned claim, instructions and dedicated CI workflow. Forge Attest's native
+`capture = "safe-utils"` mode invokes the original script, captures the actual
+JSON passed to `curl -d`, and returns a local HTTP 201 response. The supported
+curl transport never forwards the proposal. Its endpoint Safe and body nonce
+must match exactly one claim; missing, repeated, unclaimed or unsupported
+requests fail verification. Capture is a transport adapter, not a network
+sandbox for arbitrary producer code. [3, 6]
 
 The original script requires a private key. This demo supplies public test key
 `1` to produce its local request signature. That is not an owner approval. No real
@@ -96,11 +100,12 @@ It retains upstream dependency gitlinks, including `common` revision
 required. This result does not cover `m-portal` or current M0 nonce and timelock
 proposal paths. [3, 5, 7]
 
-For future operations, a deterministic proposal export, reviewed claim and
-passing attestation can accompany the operational explanation. A shared capture
-mode in Forge Attest could remove the remaining adapter and transport helper
-from producer repositories. That capability is proposed here; it is not part of
-the pinned verifier. The existing verifier already reads this request format. [6]
+For future operations, a reviewed claim and passing attestation can accompany the
+operational explanation. The shared capture mode is implemented in
+[Forge Attest PR 54](https://github.com/crossecute/forge-attest/pull/54) and pinned
+in this demo. It removes the need for per-producer wrappers, transport helpers or
+JSON export code for this supported path, while reusing the existing request
+reader and hash checks. [6]
 
 Operator time, reviewer time and net savings were not measured. The demo adds
 no on-chain transaction, calldata field or execution cost. The MultiSend payload
@@ -109,7 +114,7 @@ remains 427 bytes, with 516 bytes of outer calldata.
 ## Reproduction, evidence and limits
 
 Use the [checked-in claim](attest-nonce22.toml) with Forge Attest revision
-`998d11c9325990a74c534ef406a968c509d1544a`:
+`6ba05810e4252c87805af1c518fab6e228ea96f8`:
 
 ```bash
 export MAINNET_RPC_URL='YOUR_ETHEREUM_ARCHIVE_RPC_URL'
@@ -122,7 +127,6 @@ explain the local transport and public test key. Do not use `--broadcast` or
 Forge Attest's signing/submission option `--attest` for this historical demo.
 
 Evidence includes the [passing verdict](evidence/attestation.json),
-[rejected claim](evidence/rejected-claim.json),
 [captured request](evidence/reproduced-safe-tx.json),
 [canonical transaction](evidence/canonical-safe-tx.json),
 [execution receipt](evidence/execution-receipt.json),
@@ -150,6 +154,8 @@ this exact revision or used Foundry 1.8.1 in 2025.
 
 [[5] Historical common batch helper](https://github.com/m0-platform/common/blob/e54273e79cbd8a38b2d2b41ca4123f4e671fcc07/script/MultiSigBatchBase.sol), [historical safe-utils proposal flow](https://github.com/Recon-Fuzz/safe-utils/blob/eccb79f80cad0f3ad98137cf3e859aac5d66e425/src/Safe.sol)
 
-[[6] Forge Attest at the pinned verifier revision](https://github.com/crossecute/forge-attest/blob/998d11c9325990a74c534ef406a968c509d1544a/README.md)
+[[6] Forge Attest at the pinned native-capture revision](https://github.com/crossecute/forge-attest/blob/6ba05810e4252c87805af1c518fab6e228ea96f8/README.md)
 
 [[7] Research identifying M0 and nonce 22](../../research/foundry-msig-proposal-research.md)
+
+[[8] Successful native-capture M0 CI run](https://github.com/crossecute/evm-m-extensions/actions/runs/42100053825)
