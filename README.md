@@ -25,4 +25,4 @@ Research behind [`crossecute/protocol`](https://github.com/crossecute/protocol).
 
 | Path | What it is |
 |---|---|
-| [`protocol/provider-research.md`](protocol/provider-research.md) | What each transport (LayerZero, CCIP, Hyperlane, Wormhole, OP Stack, Arbitrum, Avalanche) guarantees about replay, how ERC-7786 attaches, and the reasoning behind each native binding. The design influences and candidate additions each suggests, with the status of each. Version-pinned to the other projects' source as read on the dates given in the file. |
+| [`research/provider-research.md`](research/provider-research.md) | What each transport (LayerZero, CCIP, Hyperlane, Wormhole, OP Stack, Arbitrum, Avalanche) guarantees about replay, how ERC-7786 attaches, and the reasoning behind each native binding. The design influences and candidate additions each suggests, with the status of each. Version-pinned to the other projects' source as read on the dates given in the file. |
