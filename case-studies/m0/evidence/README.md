@@ -5,12 +5,12 @@ are public.
 
 | File | Origin and meaning |
 | --- | --- |
-| `attestation.json` | Fresh-clone Forge Attest `6ba05810e4252c87805af1c518fab6e228ea96f8` output using `../attest-nonce22.toml`, `--require-live --json`, and an Ethereum archive RPC. Exit code 0. |
+| `attestation.json` | Fresh-clone Forge Attest `27727236af75dda63698d86ef3984b5206309634` output using `../attest-nonce22.toml`, `--require-live --json`, and an Ethereum archive RPC. Exit code 0. |
 | `reproduced-safe-tx.json` | The native `safe-utils` request from the unchanged producer's curl POST. Its SHA-256 matches `expected_output_sha256` and the native capture verdict. |
 | `canonical-safe-tx.json` | The request normalized by the existing `safe-service`/`safe-utils` reader. Its digest matches `expected_canonical_sha256`. |
 | `execution-receipt.json` | Historical receipt for Ethereum transaction `0x0e510ee28b99bd2e99ca5e6e61145181fe71964a3bece9723e3417139b91f785`. Status is `0x1`; the Safe success log contains the expected hash. |
 | `fork-block.json` | Ethereum block 23834855 from RPC, including its block hash. |
-| `ci-run.json` | Successful native-capture M0 run 42100053825. The inherited M0 integration, gas and coverage workflows are separate. |
+| `ci-run.json` | Successful M0 run 42104947713 using merged capture support. The inherited M0 integration, gas and coverage workflows are separate. |
 
 The claim runs original upstream producer revision
 `9e194fa9410edaaa467a324a55fa07af0e65f5a8` directly. No M0 wrapper, capture helper,
@@ -24,7 +24,7 @@ metadata outside the canonical Safe transaction. It is not an owner approval.
 The existing reader checks the carried `contractTransactionHash` against the
 independently derived hash. No proposal was submitted.
 
-The [Forge Attest feature CI](https://github.com/crossecute/forge-attest/actions/runs/42099920207)
+The [merged Forge Attest CI](https://github.com/crossecute/forge-attest/actions/runs/42104392272)
 passes the Solidity and full shell suites, including 37 native-capture checks.
 Those cover missing, duplicate, unclaimed and unsupported requests, ignored
 transport failures, carried-hash tampering, multiple proposals, RPC/claim chain

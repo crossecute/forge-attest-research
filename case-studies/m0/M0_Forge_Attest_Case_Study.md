@@ -101,7 +101,7 @@ required. This result does not cover `m-portal` or current M0 nonce and timelock
 proposal paths. [3, 5, 7]
 
 For future operations, a reviewed claim and passing attestation can accompany the
-operational explanation. The shared capture mode is implemented in
+operational explanation. The shared capture mode was merged through
 [Forge Attest PR 54](https://github.com/crossecute/forge-attest/pull/54) and pinned
 in this demo. It removes the need for per-producer wrappers, transport helpers or
 JSON export code for this supported path, while reusing the existing request
@@ -114,7 +114,7 @@ remains 427 bytes, with 516 bytes of outer calldata.
 ## Reproduction, evidence and limits
 
 Use the [checked-in claim](attest-nonce22.toml) with Forge Attest revision
-`6ba05810e4252c87805af1c518fab6e228ea96f8`:
+`27727236af75dda63698d86ef3984b5206309634`:
 
 ```bash
 export MAINNET_RPC_URL='YOUR_ETHEREUM_ARCHIVE_RPC_URL'
@@ -154,8 +154,8 @@ this exact revision or used Foundry 1.8.1 in 2025.
 
 [[5] Historical common batch helper](https://github.com/m0-platform/common/blob/e54273e79cbd8a38b2d2b41ca4123f4e671fcc07/script/MultiSigBatchBase.sol), [historical safe-utils proposal flow](https://github.com/Recon-Fuzz/safe-utils/blob/eccb79f80cad0f3ad98137cf3e859aac5d66e425/src/Safe.sol)
 
-[[6] Forge Attest at the pinned native-capture revision](https://github.com/crossecute/forge-attest/blob/6ba05810e4252c87805af1c518fab6e228ea96f8/README.md)
+[[6] Forge Attest at the merged native-capture revision](https://github.com/crossecute/forge-attest/blob/27727236af75dda63698d86ef3984b5206309634/README.md)
 
 [[7] Research identifying M0 and nonce 22](../../research/foundry-msig-proposal-research.md)
 
-[[8] Successful native-capture M0 CI run](https://github.com/crossecute/evm-m-extensions/actions/runs/42100053825)
+[[8] Successful M0 CI run using merged capture support](https://github.com/crossecute/evm-m-extensions/actions/runs/42104947713)
