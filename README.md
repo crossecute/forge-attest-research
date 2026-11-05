@@ -9,7 +9,7 @@ Research behind [`forge-attest`](https://github.com/crossecute/forge-attest): ho
 | Path | What it is |
 |---|---|
 | [`research/foundry-msig-proposal-research.md`](research/foundry-msig-proposal-research.md) | Survey of about 60 public repos that use Foundry scripts for Safe multisig work, grouped by style, with a dependency index and a comparison of the five reusable tools (Base `MultisigScript`, Optimism `MultisigTask`, Zeus `MultisigBuilder`, `forge-safe`, `safe-utils`). Research date 2026-11-04. |
-| [`case-studies/frax/Frax_Forge_Attest_Case_Study.docx`](case-studies/frax/Frax_Forge_Attest_Case_Study.docx) | Case study of `forge-attest` on Frax's Aurora OFT multisig operations: five Fraxtal-to-Aurora batches (30 calls, Safe nonces 554 to 558) reproduced and hash-verified in one 69-second CI run, a comparison with the current manual review steps, and a proposed rollout. |
+| [`case-studies/frax/Frax_Forge_Attest_Case_Study.md`](case-studies/frax/Frax_Forge_Attest_Case_Study.md) | Case study of `forge-attest` on Frax's Aurora OFT multisig operations: five Fraxtal-to-Aurora batches (30 calls, Safe nonces 554 to 558) reproduced and hash-verified in one 69-second CI run, a comparison with the current manual review steps, and a proposed rollout. |
 
 Findings that matter for `forge-attest`:
 
