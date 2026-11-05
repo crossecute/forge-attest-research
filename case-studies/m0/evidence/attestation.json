@@ -3,7 +3,7 @@
   "layout": "runs",
   "producer": {
     "repo": "https://github.com/crossecute/evm-m-extensions",
-    "commit": "361b8c2334887af62d751726c3bbbe53e802a179"
+    "commit": "f712d012dabe705940ba473f754e8e8d32f499db"
   },
   "toolchain": {
     "forge": "1.8.1",
@@ -15,7 +15,7 @@
     {
       "script": "attest/ReplayNonce22.s.sol:ReplayNonce22",
       "env": {
-        "FOUNDRY_PROFILE": "attest"
+        "PRIVATE_KEY": "1"
       },
       "rpc_env": "MAINNET_RPC_URL",
       "chain_id": "1",
@@ -41,7 +41,7 @@
       "chain_id": "1",
       "live": true,
       "hashes": {
-        "output_sha256": "6c1a79db1c27728a7689c49445ce702c90a526102583b727479e9f90479d6d21",
+        "output_sha256": "d44813c544bb0fafe533b2a40807c54c8520f5d936542902e1bff2f314929977",
         "canonical_sha256": "de3f0842aa8996e656b6c2e8ae669d27fc6deefb5d657225fb25bfd4efc900ae",
         "domain": "0xd61c01c3b1dcfceca89bc6a233ee00127a4f9227b689aa98c9a20055d06f0068",
         "message": "0x259d67d127152ee33bffea3fcf35f2cd0b77c11b72fe5f11bf1a0c637287b53f",

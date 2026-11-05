@@ -1,6 +1,6 @@
 producer_repo = "https://github.com/crossecute/evm-m-extensions"
-producer_commit = "361b8c2334887af62d751726c3bbbe53e802a179"
-producer_setup = "git -c url.https://github.com/.insteadOf=git@github.com: submodule update --init --recursive --jobs 8 lib/forge-std lib/common"
+producer_commit = "f712d012dabe705940ba473f754e8e8d32f499db"
+producer_setup = "git -c url.https://github.com/.insteadOf=git@github.com: submodule update --init --recursive --jobs 8"
 expected_forge_version = "1.8.1"
 
 [[run]]
@@ -9,16 +9,17 @@ rpc_env = "MAINNET_RPC_URL"
 fork_block = "23834855"
 
 [run.env]
-FOUNDRY_PROFILE = "attest"
+PRIVATE_KEY = "1"
 
 [[run.claim]]
 output_path = "out/m0-nonce-22.json"
-input_format = "safe-tx"
+input_format = "safe-service"
+input_profile = "safe-utils"
 safe_version = "1.3.0"
 chain_id = "1"
 safe_network = "ethereum"
 safe_address = "0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1"
 safe_nonce = "22"
-expected_output_sha256 = "6c1a79db1c27728a7689c49445ce702c90a526102583b727479e9f90479d6d21"
+expected_output_sha256 = "d44813c544bb0fafe533b2a40807c54c8520f5d936542902e1bff2f314929977"
 expected_canonical_sha256 = "de3f0842aa8996e656b6c2e8ae669d27fc6deefb5d657225fb25bfd4efc900ae"
 expected_safe_tx_hash = "0xab7012df75fc7907ace6cb632bc3865ded2956c33fa2aab2d4b3d85167d485a6"
